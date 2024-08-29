@@ -25,49 +25,56 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .about("Generate terminal commands using OpenAI or local Ollama models")
         .arg(Arg::new("prompt")
             .help("The prompt describing the desired command")
-            .required(true)
+            .required(false)
             .index(1))
         .arg(Arg::new("config")
             .short('c')
             .long("config")
-            .value_name("FILE")
-            .help("Sets a custom config file"))
+            .help("Run configuration setup")
+            .action(clap::ArgAction::SetTrue))
         .get_matches();
 
-    let config_path = if let Some(custom_config) = matches.get_one::<String>("config") {
-        PathBuf::from(custom_config)
-    } else {
-        get_default_config_path()?
-    };
+    let config_path = get_default_config_path().expect("Failed to get default config path");
+
+    if matches.get_flag("config") {
+        let config = create_config()?;
+        let content = serde_json::to_string_pretty(&config)?;
+        fs::write(&config_path, content)?;
+        println!("{}", "Configuration saved successfully.".green());
+        return Ok(());
+    }
 
     let config = load_or_create_config(&config_path)?;
-    let prompt = matches.get_one::<String>("prompt").expect("Prompt is required");
 
-    match &config.model.llm_get_command(&config, prompt.as_str()) {
-        Ok(Some(command)) => {
-            println!("{}", &command.cyan().bold());
-            println!("{}", "Do you want to execute this command? (y/n)".yellow());
+    if let Some(prompt) = matches.get_one::<String>("prompt") {
+        match &config.model.llm_get_command(&config, prompt.as_str()) {
+            Ok(Some(command)) => {
+                println!("{}", &command.cyan().bold());
+                println!("{}", "Do you want to execute this command? (y/n)".yellow());
 
-            let mut user_input = String::new();
-            io::stdin().read_line(&mut user_input)?;
+                let mut user_input = String::new();
+                io::stdin().read_line(&mut user_input)?;
 
-            if user_input.trim().to_lowercase() == "y" {
-                let (shell_cmd, shell_arg) = Shell::detect().to_shell_command_and_command_arg();
+                if user_input.trim().to_lowercase() == "y" {
+                    let (shell_cmd, shell_arg) = Shell::detect().to_shell_command_and_command_arg();
 
-                match ProcessCommand::new(shell_cmd).arg(shell_arg).arg(&command).output() {
-                    Ok(output) => {
-                        println!("{}", "Command output:".green().bold());
-                        io::stdout().write_all(&output.stdout)?;
-                        io::stderr().write_all(&output.stderr)?;
+                    match ProcessCommand::new(shell_cmd).arg(shell_arg).arg(&command).output() {
+                        Ok(output) => {
+                            println!("{}", "Command output:".green().bold());
+                            io::stdout().write_all(&output.stdout)?;
+                            io::stderr().write_all(&output.stderr)?;
+                        }
+                        Err(e) => eprintln!("{}", format!("Failed to execute command: {}", e).red()),
                     }
-                    Err(e) => eprintln!("{}", format!("Failed to execute command: {}", e).red()),
+                } else {
+                    println!("{}", "Command execution cancelled.".yellow());
                 }
-            } else {
-                println!("{}", "Command execution cancelled.".yellow());
-            }
-        },
-        Ok(None) => println!("{}", "No command could be generated.".yellow()),
-        Err(e) => eprintln!("{}", format!("Error: {}", e).red()),
+            },
+            Ok(None) => println!("{}", "No command could be generated.".yellow()),
+            Err(e) => eprintln!("{}", format!("Error: {}", e).red()),
+        }
+    } else {
+        println!("{}", "Please provide a prompt or use --config to set up the configuration.".yellow());
     }
 
     Ok(())
