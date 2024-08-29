@@ -1,10 +1,10 @@
 # 🖥️ LLM-Term
 
-A Rust-based CLI tool that generates and executes terminal commands using OpenAI's language models.
+A Rust-based CLI tool that generates and executes terminal commands using OpenAI's language models or local Ollama models.
 
 ## Features
 
-- Configurable model and token limit (gpt-4o-mini or gpt-4o)
+- Configurable model and token limit (gpt-4o-mini, gpt-4o, or Ollama)
 - Generate and execute terminal commands based on user prompts
 - Works on both PowerShell and Unix-like shells (Automatically detected)
 
@@ -36,7 +36,7 @@ A Rust-based CLI tool that generates and executes terminal commands using OpenAI
 
 ## Usage
 
-1. Set your OpenAI API key:
+1. Set your OpenAI API key (if using OpenAI models):
 
    - MacOS/Linux:
      ```
@@ -47,13 +47,15 @@ A Rust-based CLI tool that generates and executes terminal commands using OpenAI
      set OPENAI_API_KEY="sk-..."
      ```
 
-2. Run the application with a prompt:
+2. If using Ollama, make sure it's running locally on the default port (11434)
+
+3. Run the application with a prompt:
 
    ```
    ./llm-term "your prompt here"
    ```
 
-3. The app will generate a command based on your prompt and ask for confirmation before execution.
+4. The app will generate a command based on your prompt and ask for confirmation before execution.
 
 ## Configuration
 
@@ -62,3 +64,9 @@ A `config.json` file will be created in the same directory as the binary on firs
 ## Options
 
 - `-c, --config <FILE>`: Specify a custom config file path
+
+## Supported Models
+
+- OpenAI GPT-4 (gpt-4o)
+- OpenAI GPT-4 Mini (gpt-4o-mini)
+- Ollama (local models, default: llama3.1)
