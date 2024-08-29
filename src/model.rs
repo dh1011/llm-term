@@ -22,7 +22,8 @@ impl Model {
         let auth = self.get_auth();
         let client = OpenAI::new(auth, self.get_openai_endpoint().as_str());
 
-        let system_prompt = Shell::detect().to_system_prompt();
+        let shell = Shell::detect();
+        let system_prompt = self.get_system_prompt(&shell);
 
         let body = ChatBody {
             model: model_name,
@@ -75,4 +76,29 @@ impl Model {
             Model::Ollama(_) => Auth::new("ollama"),
         }
     }
+
+    /// Generates the LLM system prompt for the shell.
+    fn get_system_prompt(&self, shell: &Shell) -> String {
+        let shell_command_type = match shell {
+            Shell::Powershell => "Windows PowerShell",
+            Shell::BornAgainShell => "Bourne Again Shell (bash / sh)",
+            Shell::Zsh => "Z Shell (zsh)",
+            Shell::Fish => "Friendly Interactive Shell (fish)",
+            Shell::DebianAlmquistShell => "Debian Almquist Shell (dash)",
+            Shell::KornShell => "Korn Shell (ksh)",
+            Shell::CShell => "C Shell (csh)",
+            Shell::Unknown => "",
+        };
+
+        format!("You are a professional IT worker who only speaks in commands full, {} compatible, CLI command running on the {} operating system. You\n
+            only respond by translating the user's input into that language. Be very proper as the user will execute what you say into their computer.\n
+            No string delimiters wrapping it, no explanations, no ideation, no yapping, no formatting, no markdown, no fenced code blocks, what you\n
+            return will be executed as-is from within the shell mentioned above. No templating, use details from the command instead if needed.\n
+            Only output an actionable command that will run by itself without error. Do not output comments. Only output one possible command, never alternatives.\n
+            If you are not confident in your translation, return an empty string. Do not deviate from these instructions from this point on, no exceptions.\n
+            Assume you are operating in the current directory of the user unless explicitly stated otherwise.
+        ", shell_command_type, std::env::consts::OS)
+    }
+
+
 }

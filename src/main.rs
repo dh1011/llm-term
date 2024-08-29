@@ -52,7 +52,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             io::stdin().read_line(&mut user_input)?;
 
             if user_input.trim().to_lowercase() == "y" {
-                let (shell_cmd, shell_arg) = Shell::detect().to_shell_command_and_command_arg(&command);
+                let (shell_cmd, shell_arg) = Shell::detect().to_shell_command_and_command_arg();
 
                 match ProcessCommand::new(shell_cmd).arg(shell_arg).arg(&command).output() {
                     Ok(output) => {
@@ -92,12 +92,8 @@ fn load_or_create_config(path: &PathBuf) -> Result<Config, Box<dyn std::error::E
 
 fn create_config() -> Result<Config, io::Error> {
     let model = loop {
-        print!("{}", "Select model:\
-            1 for gpt-4o-mini\
-            2 for gpt-4o, \
-            3 for ollama (llama3.1)\
-        ".cyan());
-        
+        println!("{}", "Select model:\n 1 for gpt-4o-mini\n 2 for gpt-4o\n 3 for ollama (llama3.1)".cyan());
+
         io::stdout().flush()?;
         let mut choice = String::new();
         io::stdin().read_line(&mut choice)?;
