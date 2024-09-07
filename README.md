@@ -22,11 +22,13 @@ A Rust-based CLI tool that generates and executes terminal commands using OpenAI
     ```
     export PATH="$PATH:/path/to/llm-term"
     ```
+    - To set it permanently, add `export PATH="$PATH:/path/to/llm-term"` to your shell configuration file (e.g., `.bashrc`, `.zshrc`)
 
     - Windows:
     ```
     set PATH="%PATH%;C:\path\to\llm-term"
     ```
+    - To set it permanently, add `set PATH="%PATH%;C:\path\to\llm-term"` to your shell configuration file (e.g., `$PROFILE`)
 
 ## Development
 
@@ -42,10 +44,12 @@ A Rust-based CLI tool that generates and executes terminal commands using OpenAI
      ```
      export OPENAI_API_KEY="sk-..."
      ```
+
    - Windows:
      ```
      set OPENAI_API_KEY="sk-..."
      ```
+
 
 2. If using Ollama, make sure it's running locally on the default port (11434)
 
