@@ -1,0 +1,9 @@
+{
+  "choices": [
+    {
+      "message": {
+        "content": "ls"
+      }
+    }
+  ]
+}

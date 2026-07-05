@@ -1,0 +1,8 @@
+fuzz_client
+fuzz_dtlsclient
+fuzz_dtlsserver
+fuzz_pkcs7
+fuzz_server
+fuzz_x509crl
+fuzz_x509crt
+fuzz_x509csr

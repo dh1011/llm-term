@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+    - name: Mbed TLS & TF-PSA-Crypto security team
+      url: mailto:mbed-tls-security@lists.trustedfirmware.org
+      about: Report a security vulnerability.
+    - name: PSA Crypto mailing list
+      url: https://lists.trustedfirmware.org/mailman3/lists/psa-crypto.lists.trustedfirmware.org/
+      about: PSA Crypto community support and general discussion.

@@ -1,2 +1,7 @@
 /target
-config.json
+/config.json
+/cache.json
+/ports/cosmopolitan/build
+/ports/cosmopolitan/dist
+/ports/cosmopolitan/config.json
+/ports/cosmopolitan/cache.json

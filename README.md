@@ -1,76 +1,85 @@
-# 🖥️ LLM-Term
+# LLM-Term
 
-A Rust-based CLI tool that generates and executes terminal commands using OpenAI's language models or local Ollama models.
+LLM-Term is a CLI that turns plain English prompts into shell commands, shows the generated command, and asks before execution.
 
-## Features
+This repository now carries two implementations:
 
-- Configurable model and token limit (gpt-4o-mini, gpt-4o, or Ollama)
-- Generate and execute terminal commands based on user prompts
-- Works on both PowerShell and Unix-like shells (Automatically detected)
+- Rust: the primary implementation at the repository root.
+- C/Cosmopolitan: a portable executable port under `ports/cosmopolitan/`.
 
-## Demo
+The Rust implementation should remain the reference for normal development. The C port should track the same user-facing behavior where practical, with build and runtime decisions optimized for a self-contained portable binary.
 
-![LLM-Term Demo](vhs-video/demo.gif)
+## Layout
 
-## Installation
+```text
+.
+├── Cargo.toml
+├── Cargo.lock
+├── src/
+├── docs/
+├── testdata/
+└── ports/
+    └── cosmopolitan/
+        ├── Makefile
+        ├── src/
+        ├── tests/
+        ├── certs/
+        ├── generated/
+        └── third_party/
+```
 
-- Download the binary from the [Releases](https://github.com/dh1011/llm-term/releases) page
+## Rust Build
 
-- Set PATH to the binary
+```sh
+cargo build --release
+```
 
-    - MacOS/Linux:
-    ```
-    export PATH="$PATH:/path/to/llm-term"
-    ```
-    - To set it permanently, add `export PATH="$PATH:/path/to/llm-term"` to your shell configuration file (e.g., `.bashrc`, `.zshrc`)
+The binary is written to `target/release/`.
 
-    - Windows:
-    ```
-    set PATH="%PATH%;C:\path\to\llm-term"
-    ```
-    - To set it permanently, add `set PATH="%PATH%;C:\path\to\llm-term"` to your shell configuration file (e.g., `$PROFILE`)
+Run:
 
-## Development
+```sh
+llm-term "show the largest files in this directory"
+```
 
-1. Clone the repository
-2. Build the project using Cargo: `cargo build --release`
-3. The executable will be available in the `target/release` directory
+Run setup:
 
-## Usage
+```sh
+llm-term --config
+```
 
-1. Set your OpenAI API key (if using OpenAI models):
+## Portable C Build
 
-   - MacOS/Linux:
-     ```
-     export OPENAI_API_KEY="sk-..."
-     ```
+```sh
+cd ports/cosmopolitan
+make
+```
 
-   - Windows:
-     ```
-     set OPENAI_API_KEY="sk-..."
-     ```
+The portable Windows-launchable artifact is written to:
 
+```text
+ports/cosmopolitan/dist/llm-term.exe
+```
 
-2. If using Ollama, make sure it's running locally on the default port (11434)
+On Unix-like systems, the same file can be copied or renamed to `llm-term` and marked executable.
 
-3. Run the application with a prompt:
+```sh
+cp ports/cosmopolitan/dist/llm-term.exe llm-term
+chmod +x llm-term
+./llm-term --help
+```
 
-   ```
-   ./llm-term "your prompt here"
-   ```
+## Configuration And Cache
 
-4. The app will generate a command based on your prompt and ask for confirmation before execution.
+Both implementations keep user-visible `config.json` and `cache.json` files next to the executable by default.
 
-## Configuration
+See:
 
-A `config.json` file will be created in the same directory as the binary on first run. You can modify this file to change the default model and token limit.
+- `docs/config.md`
+- `docs/cache.md`
+- `docs/providers.md`
+- `docs/portable-build.md`
 
-## Options
+## Safety
 
-- `-c, --config <FILE>`: Specify a custom config file path
-
-## Supported Models
-
-- OpenAI GPT-4 (gpt-4o)
-- OpenAI GPT-4 Mini (gpt-4o-mini)
-- Ollama (local models, default: llama3.1)
+Generated commands are displayed before execution. A command only runs after explicit `y` confirmation.
